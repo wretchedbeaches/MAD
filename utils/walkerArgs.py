@@ -79,6 +79,10 @@ def parseArgs():
                         help=(
                             'The delay in minutes to wait after an egg has hatched to move to the location of the '
                             'gym. Default: 3.5'))
+    parser.add_argument('-rmclt', '--remove_clustered_locations_thresh', required=False, type=int, default=1,
+                        help=(
+                            'Remove locations with less than <defined> number of locations in a scan-location '
+                            '(cluster)'))
 
     # job processor
     parser.add_argument('-jobdtwh', '--job_dt_wh', action='store_true', default=False,

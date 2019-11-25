@@ -3,6 +3,9 @@ from utils.geo import (get_distance_of_two_points_in_meters,
                        get_middle_of_coord_list)
 import s2sphere
 from utils.s2Helper import S2Helper
+from utils.walkerArgs import parseArgs
+
+args = parseArgs()
 
 
 class ClusteringHelper:
@@ -184,7 +187,8 @@ class ClusteringHelper:
             next = self._get_most_west_amongst_relations(relations)
             middle_event, events_to_be_removed = self._get_circle(
                 next, relations[next], relations, self.max_radius)
-            final_set.append(middle_event)
+            if len(events_to_be_removed) >= args.remove_clustered_locations_thresh:
+                final_set.append(middle_event)
             relations = self._remove_coords_from_relations(
                 relations, events_to_be_removed)
         return final_set

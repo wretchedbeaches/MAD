@@ -466,7 +466,7 @@ class RouteManagerBase(ABC):
         latest = [to_keep for to_keep in latest if not to_keep[0] < delete_before]
         # TODO: sort latest by modified flag of event
         # merged = self._merge_queue(latest, self._max_radius, 2, timedelta_seconds)
-        merged = self.clustering_helper.get_clustered(latest)
+        merged = self.clustering_helper.get_clustered(latest, False)
         return merged
 
     def __set_routepool_entry_location(self, origin: str, pos: Location):

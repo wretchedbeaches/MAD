@@ -180,21 +180,22 @@ class ClusteringHelper:
                         relations[source_event].remove(relation)
         return relations
 
-    def _sum_up_relations(self, relations):
+    def _sum_up_relations(self, relations, enable_ignore_thresh=False):
         final_set = []
 
         while len(relations) > 0:
             next = self._get_most_west_amongst_relations(relations)
             middle_event, events_to_be_removed = self._get_circle(
                 next, relations[next], relations, self.max_radius)
-            if len(events_to_be_removed) >= args.remove_clustered_locations_thresh:
+            if ((enable_ignore_thresh or args.remove_clustered_locations_priority_queue)
+                    and len(events_to_be_removed) >= args.remove_clustered_locations_thresh):
                 final_set.append(middle_event)
             relations = self._remove_coords_from_relations(
                 relations, events_to_be_removed)
         return final_set
 
-    def get_clustered(self, queue):
+    def get_clustered(self, queue, enable_ignore_thresh=False):
         relations = self._get_relations_in_range_within_time(
             queue, max_radius=self.max_radius)
-        summed_up = self._sum_up_relations(relations)
+        summed_up = self._sum_up_relations(relations, enable_ignore_thresh)
         return summed_up

@@ -83,6 +83,11 @@ def parseArgs():
                         help=(
                             'Remove locations with less than <defined> number of locations in a scan-location '
                             '(cluster)'))
+    parser.add_argument('-rmclpq', '--force_enable_remove_clustered_locations', required=False, type=bool,
+                        default=False,
+                        help=(
+                            'Force the thresh for clustering of locations to always be respected. Does not affect '
+                            'modes explicitly not clustering (e.g. pokestops)'))
 
     # job processor
     parser.add_argument('-jobdtwh', '--job_dt_wh', action='store_true', default=False,

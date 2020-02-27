@@ -1,5 +1,4 @@
 import asyncio
-import collections
 import functools
 import math
 import os
@@ -605,7 +604,7 @@ class WorkerBase(AbstractWorker):
                 logger.warning('Error getting Gamedata or strange ggl message appears')
                 self._loginerrorcounter += 1
                 if self._loginerrorcounter < 3:
-                    self._restart_pogo(True)
+                    self._restart_pogo_safe()
             elif screen_type == ScreenType.DISABLED:
                 # Screendetection is disabled
                 break
@@ -621,15 +620,8 @@ class WorkerBase(AbstractWorker):
                 logger.warning("Detected GPS error 11 - rebooting device")
                 self._reboot()
             elif screen_type == ScreenType.SN:
-                logger.warning('Getting SN Screen - reset Magisk Settings')
-                time.sleep(3)
-                self._stop_pogo()
-                self._communicator.magisk_off("com.nianticlabs.pokemongo")
-                self._communicator.clear_app_cache("com.nianticlabs.pokemongo")
-                time.sleep(1)
-                self._communicator.magisk_on("com.nianticlabs.pokemongo")
-                time.sleep(1)
-                self._reboot()
+                logger.warning('Getting SN Screen - restart PoGo and later PD')
+                self._restart_pogo_safe()
                 break
 
             if self._loginerrorcounter == 2:
@@ -645,6 +637,23 @@ class WorkerBase(AbstractWorker):
             self._last_screen_type = screen_type
         logger.info('Checking pogo screen is finished')
         return True
+
+    def _restart_pogo_safe(self):
+        self._stop_pogo()
+        time.sleep(1)
+        self._stopPogoDroid()
+        time.sleep(1)
+        self._communicator.magisk_off()
+        time.sleep(1)
+        self._communicator.magisk_on()
+        time.sleep(1)
+        self._communicator.start_app("com.nianticlabs.pokemongo")
+        time.sleep(25)
+        self._stop_pogo()
+        time.sleep(1)
+        self._start_pogodroid()
+        time.sleep(1)
+        return self._communicator.start_app("com.nianticlabs.pokemongo")
 
     def _switch_user(self):
         logger.info('Switching User - please wait ...')
@@ -797,6 +806,8 @@ class WorkerBase(AbstractWorker):
     def _start_pogodroid(self):
         start_result = self._communicator.start_app("com.mad.pogodroid")
         time.sleep(5)
+        # won't work if PogoDroid is repackaged!
+        self._communicator.passthrough("am startservice com.mad.pogodroid/.services.HookReceiverService")
         return start_result
 
     def _stopPogoDroid(self):
@@ -818,7 +829,7 @@ class WorkerBase(AbstractWorker):
                                                    self._mapping_manager.routemanager_get_mode(
                                                        self._routemanager_name),
                                                    99)
-            return self._start_pogo()
+            return self._restart_pogo_safe()
         else:
             return False
 

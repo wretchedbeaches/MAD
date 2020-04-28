@@ -148,7 +148,8 @@ class MitmMapper(object):
                       and self.__mapping["timestamp_receiver"] + 60 < timestamp_received_receiver):
                     logger.warning("Data received is more than a minute older than more recent data received")
 
-                if abs(timestamp_received_raw - self.__mapping[origin]["timestamp_last_data"]) > 60:
+                if (self.__mapping.get("timestamp_last_data", None) is not None
+                        and abs(timestamp_received_raw - self.__mapping[origin]["timestamp_last_data"]) > 60):
                     logger.warning("Origin {}'s time is more than a minute off of the host running MAD", origin)
                 self.__mapping[origin][key] = {}
                 self.__mapping[origin]["location"] = location

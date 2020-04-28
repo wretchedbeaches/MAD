@@ -144,7 +144,8 @@ class MitmMapper(object):
                     origin), location, str(key), str(timestamp_received_raw))
                 if self.__mapping.get(origin) is not None and self.__mapping[origin].get(key) is not None:
                     del self.__mapping[origin][key]
-                elif self.__mapping["timestamp_receiver"] + 60 < timestamp_received_receiver:
+                elif (self.__mapping.get("timestamp_receiver", None) is not None
+                      and self.__mapping["timestamp_receiver"] + 60 < timestamp_received_receiver):
                     logger.warning("Data received is more than a minute older than more recent data received")
 
                 if abs(timestamp_received_raw - self.__mapping[origin]["timestamp_last_data"]) > 60:
